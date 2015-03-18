@@ -1,0 +1,31 @@
+{
+  "name": "alltheversions",
+  "version": "1.0.0",
+  "description": "Run your tests against ALL THE VERSIONS!",
+  "author": "Stephen Belanger <admin@stephenbelanger.com>",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "bin": {
+    "alltheversions": "dist/bin.js"
+  },
+  "scripts": {
+    "test": "gulp test",
+    "watch": "gulp watch",
+    "prepublish": "gulp build"
+  },
+  "dependencies": {
+    "bluebird": "~2.9.14",
+    "indent-string": "~1.2.1",
+    "minimist": "~1.1.1",
+    "promised-exec": "~1.0.1",
+    "rimraf-promise": "~1.0.0",
+    "semver": "~4.3.1"
+  },
+  "devDependencies": {
+    "gulp": "~3.8.11",
+    "gulp-babel": "~4.0.0",
+    "gulp-mocha": "~2.0.0",
+    "mocha": "~2.2.1",
+    "should": "~5.2.0"
+  }
+}
