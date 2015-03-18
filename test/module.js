@@ -11,8 +11,7 @@ describe('module', function () {
   before(function () {
     spec = {
       name: 'ap',
-      task: 'echo "test"',
-      range: '*'
+      task: 'echo "test"'
     }
 
     module = new Module(spec, '0.2.0')
@@ -23,6 +22,26 @@ describe('module', function () {
       versions.forEach(function (module) {
         module.name.should.equal(spec.name)
         semver.satisfies(module.version, spec.range).should.equal(true)
+      })
+    })
+  })
+
+  it('should discover satisfied versions from array range', function () {
+    var possible = [
+      '4.9.7',
+      '4.9.8',
+      '4.10.0',
+      '4.10.1'
+    ]
+
+    return Module.matchingSpec({
+      name: 'express',
+      task: 'true',
+      range: ['~4.9.7', '<= 4.10.1']
+    }).then(function (versions) {
+      versions.forEach(function (module) {
+        module.name.should.equal(spec.name)
+        possible.should.containEql(module.version)
       })
     })
   })
