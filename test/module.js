@@ -1,4 +1,4 @@
-var Module = require('../dist/module')
+var Module = require('../dist/')
 var semver = require('semver')
 var fs = require('fs')
 
@@ -11,7 +11,8 @@ describe('module', function () {
   before(function () {
     spec = {
       name: 'ap',
-      task: 'echo "test"'
+      task: 'echo "test"',
+      range: '*'
     }
 
     module = new Module(spec, '0.2.0')
@@ -34,15 +35,26 @@ describe('module', function () {
       '4.10.1'
     ]
 
-    return Module.matchingSpec({
+    var spec = {
       name: 'express',
       task: 'true',
-      range: ['~4.9.7', '<= 4.10.1']
-    }).then(function (versions) {
+      range: ['~4.9.7', '<= 4.10.1 >= 4.10.0']
+    }
+
+    return Module.matchingSpec(spec).then(function (versions) {
+      versions.length.should.equal(possible.length)
       versions.forEach(function (module) {
         module.name.should.equal(spec.name)
         possible.should.containEql(module.version)
       })
+    })
+  })
+
+  it('should uninstall', function () {
+    return module.uninstall().then(function () {
+      if (fs.existsSync('node_modules/' + spec.name)) {
+        throw new Error(spec.name + ' should have been uninstalled')
+      }
     })
   })
 
@@ -56,14 +68,6 @@ describe('module', function () {
   it('should test', function () {
     return module.test().then(function (res) {
       validateTest(spec, res)
-    })
-  })
-
-  it('should uninstall', function () {
-    return module.uninstall().then(function () {
-      if (fs.existsSync('node_modules/express')) {
-        throw new Error('express should have been uninstalled')
-      }
     })
   })
 
@@ -96,9 +100,8 @@ describe('module', function () {
     return mod.testWithInstall().then(function (res) {
       res.name.should.equal(mod.name)
       res.task.should.equal(mod.task)
-
       res.passed.should.equal(false)
-      res.error.message.should.equal('Command failed: /bin/sh -c exit 1\n')
+      res.result.should.equal('')
     })
   })
 
@@ -106,21 +109,21 @@ describe('module', function () {
   // Validators
   //
 
-  function validateTest (mod, res) {
-    res.name.should.equal(mod.name)
-    res.task.should.equal(mod.task)
+  function validateTest (spec, res) {
+    res.name.should.equal(spec.name)
+    res.task.should.equal(spec.task)
     res.passed.should.equal(true)
     res.result.should.equal('test\n')
   }
 
-  function validateVersionList (mod, res) {
+  function validateVersionList (spec, res) {
     res.should.be.instanceof(Array)
     res.forEach(function (res) {
       validateTest(spec, res)
     })
   }
 
-  function validateModuleList (mod, res) {
+  function validateModuleList (spec, res) {
     res.should.be.instanceof(Array)
     res.forEach(function (res) {
       validateVersionList(spec, res)
