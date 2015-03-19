@@ -1,6 +1,6 @@
 {
   "name": "alltheversions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run your tests against ALL THE VERSIONS!",
   "author": "Stephen Belanger <admin@stephenbelanger.com>",
   "main": "dist/index.js",
