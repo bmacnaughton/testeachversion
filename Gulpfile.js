@@ -1,12 +1,9 @@
 var gulp = require('gulp')
 var babel = require('gulp-babel')
 var mocha = require('gulp-mocha')
-require('should')
 
-var ATV = require('./dist')
-var spec = require('./dist/reporters/spec')
-
-gulp.task('test', function () {
+gulp.task('test', ['build'], function () {
+  require('should')
   return gulp.src('test/**/*.js', { read: false })
     .pipe(mocha({
       reporter: 'spec',
@@ -15,6 +12,8 @@ gulp.task('test', function () {
 })
 
 gulp.task('versions', function (cb) {
+  var ATV = require('./dist')
+  var spec = require('./dist/reporters/spec')
   ATV.testWithVersions({
     name: 'bluebird',
     range: '2.x'
