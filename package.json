@@ -26,5 +26,16 @@
     "gulp-babel": "~4.0.0",
     "gulp-mocha": "~2.0.0",
     "should": "~5.2.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qard/alltheversions.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qard/alltheversions/issues"
+  },
+  "homepage": "https://github.com/Qard/alltheversions"
 }
