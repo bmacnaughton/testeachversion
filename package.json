@@ -14,6 +14,7 @@
     "prepublish": "gulp build"
   },
   "dependencies": {
+    "babel": "^5.8.23",
     "bluebird": "~2.9.14",
     "indent-string": "~1.2.1",
     "minimist": "~1.1.1",

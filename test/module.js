@@ -1,14 +1,15 @@
-var Module = require('../dist/')
-var semver = require('semver')
-var fs = require('fs')
+import Promise from 'bluebird'
+import Module from '../dist/'
+import semver from 'semver'
+import fs from 'fs'
 
 describe('module', function () {
-  var module
-  var spec
+  let module
+  let spec
 
-  this.timeout(10000)
+  this.timeout(20000)
 
-  before(function () {
+  before(() => {
     spec = {
       name: 'ap',
       task: 'echo "test"',
@@ -18,90 +19,218 @@ describe('module', function () {
     module = new Module(spec, '0.2.0')
   })
 
-  it('should discover satisfied versions', function () {
-    return Module.matchingSpec(spec).then(function (versions) {
-      versions.forEach(function (module) {
+  it('should discover satisfied versions', () => {
+    return Module.matchingSpec(spec).then(versions => {
+      versions.forEach(module => {
         module.name.should.equal(spec.name)
         semver.satisfies(module.version, spec.range).should.equal(true)
       })
     })
   })
 
-  it('should discover satisfied versions from array range', function () {
-    var possible = [
+  it('should discover satisfied versions from array range', () => {
+    let possible = [
       '4.9.7',
       '4.9.8',
       '4.10.0',
       '4.10.1'
     ]
 
-    var spec = {
+    let spec = {
       name: 'express',
       task: 'true',
       range: ['~4.9.7', '<= 4.10.1 >= 4.10.0']
     }
 
-    return Module.matchingSpec(spec).then(function (versions) {
+    return Module.matchingSpec(spec).then(versions => {
       versions.length.should.equal(possible.length)
-      versions.forEach(function (module) {
+      versions.forEach(module => {
         module.name.should.equal(spec.name)
         possible.should.containEql(module.version)
       })
     })
   })
 
-  it('should uninstall', function () {
-    return module.uninstall().then(function () {
-      if (fs.existsSync('node_modules/' + spec.name)) {
-        throw new Error(spec.name + ' should have been uninstalled')
+  it('should uninstall', () => {
+    return module.uninstall().then(() => {
+      if (fs.existsSync(`node_modules/${spec.name}`)) {
+        throw new Error(`${spec.name} should have been uninstalled`)
       }
     })
   })
 
-  it('should install', function () {
-    return module.install().then(function () {
-      var pkg = require('ap/package')
+  it('should install', () => {
+    return module.install().then(() => {
+      let pkg = require('ap/package')
       pkg.version.should.equal('0.2.0')
     })
   })
 
-  it('should test', function () {
-    return module.test().then(function (res) {
-      validateTest(spec, res)
+  it('should move', () => {
+    return module.move().then(() => {
+      if ( ! fs.existsSync(`node_modules/${spec.name}.moved`)) {
+        throw new Error(`${spec.name} should have been moved`)
+      }
     })
   })
 
-  it('should test with install', function () {
-    return module.testWithInstall().then(function (res) {
-      validateTest(spec, res)
+  it('should restore', () => {
+    return module.restore().then(() => {
+      if ( ! fs.existsSync(`node_modules/${spec.name}`)) {
+        throw new Error(`${spec.name} should have been restored`)
+      }
     })
   })
 
-  it('should test with versions', function () {
-    return Module.testWithVersions(spec).then(function (res) {
-      validateVersionList(spec, res)
-    })
+  it('should test', () => {
+    return module.test().then(
+      res => validateTest(spec, res)
+    )
   })
 
-  it('should test with module list', function () {
-    return Module.testAllWithVersions([spec,spec]).then(function (res) {
-      validateModuleList(spec, res)
-    })
+  it('should test with install', () => {
+    return module.testWithInstall().then(
+      res => validateTest(spec, res)
+    )
   })
 
-  it('should not fail to return result when failing a test', function () {
-    var data = {
+  it('should test with versions', () => {
+    return Module.testWithVersions(spec).then(
+      res => validateVersionList(spec, res)
+    )
+  })
+
+  it('should test with module list', () => {
+    return Module.testAllWithVersions([spec, spec]).then(
+      res => validateModuleList(spec, res)
+    )
+  })
+
+  it('should not fail to return result when failing a test', () => {
+    let data = {
       name: 'ap',
       task: 'exit 1'
     }
 
-    var mod = new Module(data, '0.2.0')
-
-    return mod.testWithInstall().then(function (res) {
+    let mod = new Module(data, '0.2.0')
+    return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.task.should.equal(mod.task)
       res.passed.should.equal(false)
       res.result.should.equal('')
+    })
+  })
+
+  it('should support function tasks', () => {
+    let data = {
+      name: 'ap',
+      task: () => 'test'
+    }
+
+    let mod = new Module(data, '0.2.0')
+    return mod.testWithInstall().then(res => {
+      res.name.should.equal(mod.name)
+      res.passed.should.equal(true)
+      res.result.should.equal('test')
+    })
+  })
+
+  it('should support function tasks with callbacks', () => {
+    let data = {
+      name: 'ap',
+      task: (done) => delay(100).then(() => done(null, 'test'))
+    }
+
+    let mod = new Module(data, '0.2.0')
+    return mod.testWithInstall().then(res => {
+      res.name.should.equal(mod.name)
+      res.passed.should.equal(true)
+      res.result.should.equal('test')
+    })
+  })
+
+  it('should support function tasks with promises', () => {
+    let data = {
+      name: 'ap',
+      task: () => delay(100).then(() => 'test')
+    }
+
+    let mod = new Module(data, '0.2.0')
+    return mod.testWithInstall().then(res => {
+      res.name.should.equal(mod.name)
+      res.passed.should.equal(true)
+      res.result.should.equal('test')
+    })
+  })
+
+  it('should support major filter', () => {
+    let spec = {
+      name: 'express',
+      task: 'echo "test"',
+      range: '>= 1.0.0 < 3.0.0',
+      filter: 'major'
+    }
+
+    return Module.matchingSpec(spec).then(filtered => {
+      filtered.length.should.equal(2)
+      return Promise.all(filtered.map(module => {
+        module.name.should.equal(spec.name)
+        semver.satisfies(module.version, spec.range).should.equal(true)
+
+        return Module.matchingSpec({
+          name: 'express',
+          task: 'echo "test"',
+          range: `^${module.version}`
+        }).then(versions => {
+          versions.forEach(v => {
+            semver.satisfies(module.version, `^${v.version}`).should.equal(true)
+          })
+        })
+      }))
+    })
+  })
+
+  it('should support minor filter', () => {
+    let spec = {
+      name: 'express',
+      task: 'echo "test"',
+      range: '^2.0.0',
+      filter: 'minor'
+    }
+
+    return Module.matchingSpec(spec).then(filtered => {
+      filtered.length.should.equal(6)
+      return Promise.all(filtered.map(module => {
+        module.name.should.equal(spec.name)
+        semver.satisfies(module.version, spec.range).should.equal(true)
+
+        return Module.matchingSpec({
+          name: 'express',
+          task: 'echo "test"',
+          range: `~${module.version}`
+        }).then(versions => {
+          versions.forEach(v => {
+            semver.satisfies(module.version, `~${v.version}`).should.equal(true)
+          })
+        })
+      }))
+    })
+  })
+
+  it('should support function filter', () => {
+    let spec = {
+      name: 'express',
+      task: 'echo "test"',
+      range: '^2.0.0',
+      filter: vers => vers.slice(0, 2)
+    }
+
+    return Module.matchingSpec(spec).then(filtered => {
+      filtered.length.should.equal(2)
+      filtered.forEach(module => {
+        module.name.should.equal(spec.name)
+        semver.satisfies(module.version, spec.range).should.equal(true)
+      })
     })
   })
 
@@ -111,22 +240,21 @@ describe('module', function () {
 
   function validateTest (spec, res) {
     res.name.should.equal(spec.name)
-    res.task.should.equal(spec.task)
     res.passed.should.equal(true)
     res.result.should.equal('test\n')
   }
 
   function validateVersionList (spec, res) {
     res.should.be.instanceof(Array)
-    res.forEach(function (res) {
-      validateTest(spec, res)
-    })
+    res.forEach(res => validateTest(spec, res))
   }
 
   function validateModuleList (spec, res) {
     res.should.be.instanceof(Array)
-    res.forEach(function (res) {
-      validateVersionList(spec, res)
-    })
+    res.forEach(res => validateVersionList(spec, res))
   }
 })
+
+function delay (n) {
+  return new Promise((done) => setTimeout(() => done(n), n))
+}
