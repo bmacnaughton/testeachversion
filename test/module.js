@@ -183,7 +183,7 @@ describe('module', function () {
           range: `^${module.version}`
         }).then(versions => {
           versions.forEach(v => {
-            semver.satisfies(module.version, `^${v.version}`).should.equal(true)
+            semver.satisfies(v.version, `^${module.version}`).should.equal(true)
           })
         })
       }))
@@ -210,7 +210,7 @@ describe('module', function () {
           range: `~${module.version}`
         }).then(versions => {
           versions.forEach(v => {
-            semver.satisfies(module.version, `~${v.version}`).should.equal(true)
+            semver.satisfies(v.version, `~${module.version}`).should.equal(true)
           })
         })
       }))
