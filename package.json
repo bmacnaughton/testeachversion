@@ -25,6 +25,8 @@
   "devDependencies": {
     "gulp": "~3.8.11",
     "gulp-babel": "~4.0.0",
+    "gulp-chmod": "^2.0.0",
+    "gulp-filter": "^5.1.0",
     "gulp-mocha": "~2.0.0",
     "should": "~5.2.0"
   },
