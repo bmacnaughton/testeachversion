@@ -1,8 +1,8 @@
 {
-  "name": "alltheversions",
-  "version": "2.0.1",
-  "description": "Run your tests against ALL THE VERSIONS!",
-  "author": "Stephen Belanger <admin@stephenbelanger.com>",
+  "name": "testeachversion",
+  "version": "3.0.0",
+  "description": "Run a test against each version of a package!",
+  "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "dist/index.js",
   "license": "MIT",
   "bin": {
@@ -35,10 +35,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Qard/alltheversions.git"
+    "url": "https://github.com/bmacnaughton/testeachversion"
   },
   "bugs": {
-    "url": "https://github.com/Qard/alltheversions/issues"
+    "url": "https://github.com/bmacnaughton/testeachversion/issues"
   },
-  "homepage": "https://github.com/Qard/alltheversions"
+  "homepage": "https://github.com/bmacnaughton/testeachversion"
 }

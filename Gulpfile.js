@@ -40,12 +40,14 @@ gulp.task('watch', function () {
     'build'
   ])
 
-  gulp.watch([
-    'dist/**/*.js',
-    'test/**/*.js'
-  ], [
-    'test'
-  ])
+  //*
+  //gulp.watch([
+  //  'dist/**/*.js',
+  //  'test/**/*.js'
+  //], [
+  //  'test'
+  //])
+  // */
 })
 
 gulp.task('default', [

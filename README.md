@@ -1,8 +1,6 @@
-# alltheversions
+# testeachversion
 
-Do you just *love* it when dependencies make breaking changes in a patch release? Do you live for the mystery and intrigue of never quite knowing if a deploy will blow up in production? Then this is probably not the module for you!
-
-With `alltheversions`, you can run your test suite against--you guessed it--all the versions of your dependencies. You simply create a versions spec file to define what modules and version ranges you want to test against, along with what task you want to run for that particular module--the default being `npm test`.
+`testeachversion` runs your test suite against each versions of the packages you depend on. You create a versions spec file to define what modules and version ranges you want to test against, along with what task you want to run for that particular module. The default is `npm test`.
 
 ### Usage
 
@@ -11,6 +9,8 @@ Basic usage is as simple as running `alltheversions` in the command line. Howeve
 - -c, --config - Look for version spec file in different location
 - -m, --module - Only run version tests for the specified module
 - -v, --verbose - Include stdout of test runs in output
+
+(-v is currently being reworked and -s (suppress errors) is being added.)
 
 ### Versions File
 
@@ -32,3 +32,7 @@ A typical versions spec file looks something like this:
 ```
 
 If task is omitted from a module entry, it will default to `npm test`, and omitting range will default it to `*`.
+
+### History
+
+This is based on Stephen Belanger's `alltheversions`. I have learned much from his code.
