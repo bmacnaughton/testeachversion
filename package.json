@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "license": "MIT",
   "bin": {
-    "alltheversions": "dist/bin.js"
+    "testeachversion": "dist/bin.js"
   },
   "scripts": {
     "test": "gulp test",
