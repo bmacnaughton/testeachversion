@@ -101,7 +101,7 @@ describe('module', function () {
   })
 
   it('should test with module list', () => {
-    return Module.testAllWithVersions([spec, spec]).then(
+    return Module.testTheseVersions([spec, spec]).then(
       res => validateModuleList(spec, res)
     )
   })
@@ -116,7 +116,7 @@ describe('module', function () {
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.task.should.equal(mod.task)
-      res.passed.should.equal(false)
+      res.status.should.equal(false)
       res.result.should.equal('')
     })
   })
@@ -130,7 +130,7 @@ describe('module', function () {
     let mod = new Module(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
-      res.passed.should.equal(true)
+      res.status.should.equal(true)
       res.result.should.equal('test')
     })
   })
@@ -144,7 +144,7 @@ describe('module', function () {
     let mod = new Module(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
-      res.passed.should.equal(true)
+      res.status.should.equal(true)
       res.result.should.equal('test')
     })
   })
@@ -158,7 +158,7 @@ describe('module', function () {
     let mod = new Module(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
-      res.passed.should.equal(true)
+      res.status.should.equal(true)
       res.result.should.equal('test')
     })
   })
@@ -240,7 +240,7 @@ describe('module', function () {
 
   function validateTest (spec, res) {
     res.name.should.equal(spec.name)
-    res.passed.should.equal(true)
+    res.status.should.equal(true)
     res.result.should.equal('test\n')
   }
 
