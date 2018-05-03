@@ -1,6 +1,6 @@
 {
   "name": "testeachversion",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Run a test against each version of a package!",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "dist/index.js",
