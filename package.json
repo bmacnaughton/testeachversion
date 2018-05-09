@@ -1,6 +1,6 @@
 {
   "name": "testeachversion",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "description": "Run a test against each version of a package!",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "dist/index.js",
@@ -8,7 +8,6 @@
   "bin": {
     "testeachversion": "dist/bin.js",
     "humanize": "dist/humanize-log.js"
-
   },
   "scripts": {
     "test": "gulp test",
