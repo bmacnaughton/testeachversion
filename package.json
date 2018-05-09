@@ -6,7 +6,9 @@
   "main": "dist/index.js",
   "license": "MIT",
   "bin": {
-    "testeachversion": "dist/bin.js"
+    "testeachversion": "dist/bin.js",
+    "humanize": "dist/humanize-log.js"
+
   },
   "scripts": {
     "test": "gulp test",
