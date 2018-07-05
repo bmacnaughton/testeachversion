@@ -17,9 +17,9 @@ There are some useful options, including:
 
 Two logs are generated - a summary log and a details log. The details log contains the output from each test run and can be used to better understand how and why specific tests failed. The summary log is in JSON format and captures the tests that were skipped, passed, and failed. It can be interpreted using `humanize-log.js` (which is linked as `node_modules/.bin/humanize`).
 
-`humanize <summary-log-file-name>` will output each package's tests that passed.
+`humanize path [...path]` for each file or directory specified by `path` will select the summary json files and output each package's tests that passed.
 
-`humanize <summary-log-file-name> -a` will output each package's skips, passes, and fails.
+`humanize path [...path] -a` will output each package's skips, passes, and fails.
 
 These generate the information that goes into the node version-probes spreadsheet.
 
