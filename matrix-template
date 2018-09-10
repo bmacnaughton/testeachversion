@@ -1,0 +1,37 @@
+.. csv-table:: **Node.js database clients**
+    :widths: auto
+
+    `cassandra-driver <https://www.npmjs.com/package/cassandra-driver>`_, "{{cassandra-driver:versions}}", `mongodb-core <https://www.npmjs.com/package/mongodb-core>`_, "{{mongodb-core:versions}}"
+    `mysql <https://www.npmjs.com/package/mysql>`__, "{{mysql:versions}}", `pg <https://www.npmjs.com/package/pg>`_, "{{pg:versions}}"
+    Microsoft SQL via `tedious <https://www.npmjs.com/package/tedious>`_, "{{tedious:versions}}"
+
+.. csv-table:: **Node.js cache clients**
+    :widths: auto
+
+    `levelup <https://www.npmjs.com/package/levelup>`_, "{{levelup:versions}}"
+    `redis <https://www.npmjs.com/package/redis>`__, "{{redis:versions}}"
+
+.. csv-table:: **Node.js core modules**
+    :widths: auto
+
+    crypto, fs
+    http, https
+    zlib
+
+.. csv-table:: **Other Node.js components**
+    :widths: auto
+
+    `amqplib <https://www.npmjs.com/package/amqplib>`_, "{{amqplib:versions}}", `generic-pool <https://www.npmjs.com/package/generic-pool>`_, "{{generic-pool:versions}}"
+    `bcrypt <https://www.npmjs.com/package/bcrypt>`_, "{{bcrypt:versions}}",`raw-body <https://www.npmjs.com/package/raw-body>`_, "{{raw-body:versions}}"
+    `bluebird <https://www.npmjs.com/package/bluebird>`_, "{{bluebird:versions}}", `q <https://www.npmjs.com/package/q>`_, "{{q:versions}}"
+
+.. csv-table:: **Node.js frameworks**
+    :widths: auto
+
+    `director <https://www.npmjs.com/package/director>`_, "{{director:versions}}", `flatiron <https://www.npmjs.com/package/flatiron>`_, via director
+    `express <https://www.npmjs.com/package/express>`_, "{{express:versions}}", `kraken <https://www.npmjs.com/package/kraken>`_, via express
+    `mean <https://www.npmjs.com/package/mean-cli>`_, via express, `coke <https://www.npmjs.com/package/coke>`_, via express
+    `sails <https://www.npmjs.com/package/sails>`_, via express, `hapi <https://www.npmjs.com/package/hapi>`_, "{{hapi:versions}}"
+    `restify <https://www.npmjs.com/package/restify>`_, "{{restify:versions}}", `koa <https://www.npmjs.com/package/koa>`_, "{{koa:versions}}"
+    `koa-route <https://www.npmjs.com/package/koa-route>`_, "{{koa-route:versions}}", `koa-router <https://www.npmjs.com/package/koa-router>`_, "{{koa-router:versions}}"
+    `koa-resource-router <https://www.npmjs.com/package/koa-resource-router>`_, "{{koa-resource-router:versions}}", koa `co-render <https://www.npmjs.com/package/co-render>`_, "{{co-render:versions}}"
