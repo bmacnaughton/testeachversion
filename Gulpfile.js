@@ -1,6 +1,4 @@
-require('babel/register')
 var gulp = require('gulp')
-var babel = require('gulp-babel')
 var mocha = require('gulp-mocha')
 var filter = require('gulp-filter')
 var chmod = require('gulp-chmod')
@@ -28,7 +26,6 @@ gulp.task('versions', function (cb) {
 gulp.task('build', function () {
   var f = filter('lib/bin.js', {restore: true})
   return gulp.src('lib/**/*.js')
-    //.pipe(babel())
     .pipe(f)
     .pipe(chmod(0o755))
     .pipe(f.restore)

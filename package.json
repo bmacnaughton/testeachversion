@@ -15,7 +15,6 @@
     "prepublish": "gulp build"
   },
   "dependencies": {
-    "babel": "^5.8.23",
     "bluebird": "~2.9.14",
     "indent-string": "~1.2.1",
     "linux-os-info": "^1.0.0",
@@ -26,7 +25,6 @@
   "devDependencies": {
     "ap": "^0.2.0",
     "gulp": "~3.8.11",
-    "gulp-babel": "~4.0.0",
     "gulp-chmod": "^2.0.0",
     "gulp-filter": "^5.1.0",
     "gulp-mocha": "~2.0.0",
