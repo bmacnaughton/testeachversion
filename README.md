@@ -49,4 +49,6 @@ Semver is used to test the ranges.
 
 ### History
 
+Version 7 of testeachversion removes babel and as such requires node version 6+.
+
 This is based on Stephen Belanger's `alltheversions`. I learned much from his code.
