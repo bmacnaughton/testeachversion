@@ -28,7 +28,7 @@ gulp.task('versions', function (cb) {
 gulp.task('build', function () {
   var f = filter('lib/bin.js', {restore: true})
   return gulp.src('lib/**/*.js')
-    .pipe(babel())
+    //.pipe(babel())
     .pipe(f)
     .pipe(chmod(0o755))
     .pipe(f.restore)
