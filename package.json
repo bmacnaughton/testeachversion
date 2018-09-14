@@ -17,7 +17,7 @@
   "dependencies": {
     "bluebird": "~2.9.14",
     "indent-string": "~1.2.1",
-    "linux-os-info": "^1.0.0",
+    "linux-os-info": "^2.0.0",
     "minimist": "~1.1.1",
     "retry": "^0.12.0",
     "semver": "~4.3.1"
