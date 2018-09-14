@@ -1,7 +1,7 @@
-import Promise from 'bluebird'
-import Module from '../dist/'
-import semver from 'semver'
-import fs from 'fs'
+const Promise = require('bluebird')
+const Module = require('../dist/')
+const semver = require('semver')
+const fs = require('fs')
 
 describe('module', function () {
   let module
