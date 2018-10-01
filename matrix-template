@@ -10,6 +10,7 @@
 
     `levelup <https://www.npmjs.com/package/levelup>`_, "{{level:versions}}"
     `redis <https://www.npmjs.com/package/redis>`__, "{{redis:versions}}"
+    `memcached <https://www.npmjs.com/package/memcached>` _, "{{memcached:versions}}"
 
 .. csv-table:: **Node.js core modules**
     :widths: auto
