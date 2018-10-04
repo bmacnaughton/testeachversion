@@ -3,16 +3,14 @@
   "version": "7.0.2",
   "description": "Run a test against each version of a package!",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "bin": {
-    "testeachversion": "dist/bin.js",
-    "humanize": "dist/humanize-log.js"
+    "testeachversion": "lib/bin.js",
+    "humanize": "lib/humanize-log.js"
   },
   "scripts": {
-    "test": "gulp test",
-    "watch": "gulp watch",
-    "prepublish": "gulp build"
+    "test": "gulp test"
   },
   "dependencies": {
     "bluebird": "~2.9.14",
