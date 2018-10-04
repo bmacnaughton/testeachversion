@@ -1,9 +1,9 @@
 const Promise = require('bluebird')
-const Module = require('../dist/')
+const Package = require('../dist/')
 const semver = require('semver')
 const fs = require('fs')
 
-describe('module', function () {
+describe('package', function () {
   let module
   let spec
 
@@ -16,11 +16,11 @@ describe('module', function () {
       range: '*'
     }
 
-    module = new Module(spec, '0.2.0')
+    module = new Package(spec, '0.2.0')
   })
 
   it('should discover satisfied versions', () => {
-    return Module.matchingSpec(spec).then(versions => {
+    return Package.matchingSpec(spec).then(versions => {
       versions.forEach(module => {
         module.name.should.equal(spec.name)
         semver.satisfies(module.version, spec.range).should.equal(true)
@@ -42,7 +42,7 @@ describe('module', function () {
       range: ['~4.9.7', '<= 4.10.1 >= 4.10.0']
     }
 
-    return Module.matchingSpec(spec).then(versions => {
+    return Package.matchingSpec(spec).then(versions => {
       versions.length.should.equal(possible.length)
       versions.forEach(module => {
         module.name.should.equal(spec.name)
@@ -95,14 +95,14 @@ describe('module', function () {
   })
 
   it('should test with versions', () => {
-    return Module.testWithVersions(spec).then(
+    return Package.testWithVersions(spec).then(
       res => validateVersionList(spec, res)
     )
   })
 
   it('should test with module list', () => {
-    return Module.testTheseVersions([spec, spec]).then(
-      res => validateModuleList(spec, res)
+    return Package.testTheseVersions([spec, spec]).then(
+      res => validatePackageList(spec, res)
     )
   })
 
@@ -112,7 +112,7 @@ describe('module', function () {
       task: 'exit 1'
     }
 
-    let mod = new Module(data, '0.2.0')
+    let mod = new Package(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.task.should.equal(mod.task)
@@ -127,7 +127,7 @@ describe('module', function () {
       task: () => 'test'
     }
 
-    let mod = new Module(data, '0.2.0')
+    let mod = new Package(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -141,7 +141,7 @@ describe('module', function () {
       task: (done) => delay(100).then(() => done(null, 'test'))
     }
 
-    let mod = new Module(data, '0.2.0')
+    let mod = new Package(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -155,7 +155,7 @@ describe('module', function () {
       task: () => delay(100).then(() => 'test')
     }
 
-    let mod = new Module(data, '0.2.0')
+    let mod = new Package(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -171,13 +171,13 @@ describe('module', function () {
       filter: 'major'
     }
 
-    return Module.matchingSpec(spec).then(filtered => {
+    return Package.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(2)
       return Promise.all(filtered.map(module => {
         module.name.should.equal(spec.name)
         semver.satisfies(module.version, spec.range).should.equal(true)
 
-        return Module.matchingSpec({
+        return Package.matchingSpec({
           name: 'express',
           task: 'echo "test"',
           range: `^${module.version}`
@@ -198,13 +198,13 @@ describe('module', function () {
       filter: 'minor'
     }
 
-    return Module.matchingSpec(spec).then(filtered => {
+    return Package.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(6)
       return Promise.all(filtered.map(module => {
         module.name.should.equal(spec.name)
         semver.satisfies(module.version, spec.range).should.equal(true)
 
-        return Module.matchingSpec({
+        return Package.matchingSpec({
           name: 'express',
           task: 'echo "test"',
           range: `~${module.version}`
@@ -225,7 +225,7 @@ describe('module', function () {
       filter: vers => vers.slice(0, 2)
     }
 
-    return Module.matchingSpec(spec).then(filtered => {
+    return Package.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(2)
       filtered.forEach(module => {
         module.name.should.equal(spec.name)
@@ -249,7 +249,7 @@ describe('module', function () {
     res.forEach(res => validateTest(spec, res))
   }
 
-  function validateModuleList (spec, res) {
+  function validatePackageList (spec, res) {
     res.should.be.instanceof(Array)
     res.forEach(res => validateVersionList(spec, res))
   }
