@@ -31,19 +31,40 @@ A typical versions spec file looks something like this:
 ```
 [
   {
+    "version": 1,               // version 1 is implied if missing
     "name": "express",
-    "range": "~4.0.0",
+    "range": "^4.0.0",
     "task": "gulp test:express"
   },
   {
     "name": "redis",
-    "range": ["0.10.x","^0.12.0"],
-    "task": "gulp test:redis"
+    "range": ">= 0.8.0",
+    "task": "gulp test:redis",
   },
+  {
+    "version": 2,
+    "name": "vision",
+    "task": "gulp test:vision",
+    "ranges": [
+      {
+        "range": ">= 4.0.0 < 5.0.0",
+        "dependencies: ["hapi@16"]
+      }, {
+        "range": ">= 5.0.0",
+        "dependencies": ["hapi@17"]
+      }
+    ]
+  }
 ]
 ```
 
-The default for `task` is `npm test`; for `range` it is `*`.
+The default for `version` is `1`; `task` is `npm test`; `range` is `*`.
+
+Version 2 definitions specify dependencies that will be used for the matching range. testeachversion
+will not iterate through all the versions of the dependencies, just the latest for each dependency. E.g.,
+in the `vision` test the latest version of `hapi` v16 will be used for each v4 version of `vision`.
+
+The `example/` directory contains an example version file.
 
 Semver is used to test the ranges.
 
