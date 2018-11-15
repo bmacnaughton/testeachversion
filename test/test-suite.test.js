@@ -1,10 +1,11 @@
-const Promise = require('bluebird')
-const Package = require('../dist/')
+'use strict'
+
+const Entity = require('../lib/entity')
 const semver = require('semver')
 const fs = require('fs')
 
-describe('package', function () {
-  let module
+describe('entity', function () {
+  let nodule
   let spec
 
   this.timeout(20000)
@@ -16,14 +17,14 @@ describe('package', function () {
       range: '*'
     }
 
-    module = new Package(spec, '0.2.0')
+    nodule = new Entity(spec, '0.2.0')
   })
 
   it('should discover satisfied versions', () => {
-    return Package.matchingSpec(spec).then(versions => {
-      versions.forEach(module => {
-        module.name.should.equal(spec.name)
-        semver.satisfies(module.version, spec.range).should.equal(true)
+    return Entity.matchingSpec(spec).then(versions => {
+      versions.forEach(nodule => {
+        nodule.name.should.equal(spec.name)
+        semver.satisfies(nodule.version, spec.range).should.equal(true)
       })
     })
   })
@@ -42,67 +43,67 @@ describe('package', function () {
       range: ['~4.9.7', '<= 4.10.1 >= 4.10.0']
     }
 
-    return Package.matchingSpec(spec).then(versions => {
+    return Entity.matchingSpec(spec).then(versions => {
       versions.length.should.equal(possible.length)
-      versions.forEach(module => {
-        module.name.should.equal(spec.name)
-        possible.should.containEql(module.version)
+      versions.forEach(nodule => {
+        nodule.name.should.equal(spec.name)
+        possible.should.containEql(nodule.version)
       })
     })
   })
 
   it('should uninstall', () => {
-    return module.uninstall().then(() => {
-      if (fs.existsSync(`node_modules/${spec.name}`)) {
+    return nodule.uninstall().then(() => {
+      if (fs.existsSync(`node_nodules/${spec.name}`)) {
         throw new Error(`${spec.name} should have been uninstalled`)
       }
     })
   })
 
   it('should install', () => {
-    return module.install().then(() => {
+    return nodule.install().then(() => {
       let pkg = require('ap/package')
       pkg.version.should.equal('0.2.0')
     })
   })
 
   it('should move', () => {
-    return module.move().then(() => {
-      if ( ! fs.existsSync(`node_modules/${spec.name}.moved`)) {
+    return nodule.move().then(() => {
+      if ( ! fs.existsSync(`node_nodules/${spec.name}.moved`)) {
         throw new Error(`${spec.name} should have been moved`)
       }
     })
   })
 
   it('should restore', () => {
-    return module.restore().then(() => {
-      if ( ! fs.existsSync(`node_modules/${spec.name}`)) {
+    return nodule.restore().then(() => {
+      if ( ! fs.existsSync(`node_nodules/${spec.name}`)) {
         throw new Error(`${spec.name} should have been restored`)
       }
     })
   })
 
   it('should test', () => {
-    return module.test().then(
+    return nodule.test().then(
       res => validateTest(spec, res)
     )
   })
 
   it('should test with install', () => {
-    return module.testWithInstall().then(
+    return nodule.testWithInstall().then(
       res => validateTest(spec, res)
     )
   })
 
   it('should test with versions', () => {
-    return Package.testWithVersions(spec).then(
+    return Entity.testWithVersions(spec).then(
       res => validateVersionList(spec, res)
     )
   })
 
-  it('should test with module list', () => {
-    return Package.testTheseVersions([spec, spec]).then(
-      res => validatePackageList(spec, res)
+  it('should test with nodule list', () => {
+    return Entity.testTheseVersions([spec, spec]).then(
+      res => validateEntityList(spec, res)
     )
   })
 
@@ -112,7 +113,7 @@ describe('package', function () {
       task: 'exit 1'
     }
 
-    let mod = new Package(data, '0.2.0')
+    let mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.task.should.equal(mod.task)
@@ -127,7 +128,7 @@ describe('package', function () {
       task: () => 'test'
     }
 
-    let mod = new Package(data, '0.2.0')
+    let mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -141,7 +142,7 @@ describe('package', function () {
       task: (done) => delay(100).then(() => done(null, 'test'))
     }
 
-    let mod = new Package(data, '0.2.0')
+    let mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -155,7 +156,7 @@ describe('package', function () {
       task: () => delay(100).then(() => 'test')
     }
 
-    let mod = new Package(data, '0.2.0')
+    let mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -171,19 +172,19 @@ describe('package', function () {
       filter: 'major'
     }
 
-    return Package.matchingSpec(spec).then(filtered => {
+    return Entity.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(2)
-      return Promise.all(filtered.map(module => {
-        module.name.should.equal(spec.name)
-        semver.satisfies(module.version, spec.range).should.equal(true)
+      return Promise.all(filtered.map(nodule => {
+        nodule.name.should.equal(spec.name)
+        semver.satisfies(nodule.version, spec.range).should.equal(true)
 
-        return Package.matchingSpec({
+        return Entity.matchingSpec({
           name: 'express',
           task: 'echo "test"',
-          range: `^${module.version}`
+          range: `^${nodule.version}`
         }).then(versions => {
           versions.forEach(v => {
-            semver.satisfies(v.version, `^${module.version}`).should.equal(true)
+            semver.satisfies(v.version, `^${nodule.version}`).should.equal(true)
           })
         })
       }))
@@ -198,19 +199,19 @@ describe('package', function () {
       filter: 'minor'
     }
 
-    return Package.matchingSpec(spec).then(filtered => {
+    return Entity.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(6)
-      return Promise.all(filtered.map(module => {
-        module.name.should.equal(spec.name)
-        semver.satisfies(module.version, spec.range).should.equal(true)
+      return Promise.all(filtered.map(nodule => {
+        nodule.name.should.equal(spec.name)
+        semver.satisfies(nodule.version, spec.range).should.equal(true)
 
-        return Package.matchingSpec({
+        return Entity.matchingSpec({
           name: 'express',
           task: 'echo "test"',
-          range: `~${module.version}`
+          range: `~${nodule.version}`
         }).then(versions => {
           versions.forEach(v => {
-            semver.satisfies(v.version, `~${module.version}`).should.equal(true)
+            semver.satisfies(v.version, `~${nodule.version}`).should.equal(true)
           })
         })
       }))
@@ -225,11 +226,11 @@ describe('package', function () {
       filter: vers => vers.slice(0, 2)
     }
 
-    return Package.matchingSpec(spec).then(filtered => {
+    return Entity.matchingSpec(spec).then(filtered => {
       filtered.length.should.equal(2)
-      filtered.forEach(module => {
-        module.name.should.equal(spec.name)
-        semver.satisfies(module.version, spec.range).should.equal(true)
+      filtered.forEach(nodule => {
+        nodule.name.should.equal(spec.name)
+        semver.satisfies(nodule.version, spec.range).should.equal(true)
       })
     })
   })
@@ -249,7 +250,7 @@ describe('package', function () {
     res.forEach(res => validateTest(spec, res))
   }
 
-  function validatePackageList (spec, res) {
+  function validateEntityList (spec, res) {
     res.should.be.instanceof(Array)
     res.forEach(res => validateVersionList(spec, res))
   }
