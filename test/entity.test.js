@@ -1,6 +1,6 @@
 'use strict'
 
-const Entity = require('../lib/entity')
+const Entity = require('../lib/entity').Entity
 const assert = require('assert')
 const semver = require('semver')
 const fs = require('fs')
@@ -19,8 +19,9 @@ describe('entity', function () {
   }
 
   before(() => {
-    nodule = new Entity(pkg, '0.2.0')
-    badule = new Entity({name: 'xyzzy', task: 'false'}, '9.9.9')
+    nodule = new Entity('ap', '0.2.0', 'echo done')
+    badule = new Entity('xyzzy', '9.9.9', 'false')
+    // node -r xyzzy -e 'process.exit()'
   })
 
   it.skip('should uninstall', () => {
@@ -39,29 +40,32 @@ describe('entity', function () {
     // little function to output info while developing
     nodule.on('state', function (from, to, n) {
       const {installStatus, testStatus} = n
-      console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
+      //console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
     })
 
     return nodule.install().then(r => {
       assert(r && r.length, 'an array of install results must be returned')
       assert(nodule.state === 'installed', 'state must be "installed"')
       assert(nodule.installStatus === 'pass', 'installStatus must be "pass"')
-      assert(!nodule.log, 'log must be empty')
+      assert(!nodule.log.stderr, 'log must be empty')
       let pkg = require('ap/package')
       assert(pkg.version === '0.2.0', 'ap/package version should be 0.2.0')
     })
   })
 
 
-  it('should execute low level test', () => {
-    let i = 0
-    reporter.emit = function (tag, value) {
-      console.log(i++, tag, value)
-    }
+  it('should execute the test specified', () => {
+    let log = ''
+    nodule.on('state', function (from, to, n) {
+      if (to === 'tested') {
+        log = n.log.stdout
+      }
+    })
     return nodule.test().then(result => {
-      assert(result === '', 'result must be an empty string')
+      assert(result === null, 'result must be null')
       assert(nodule.state === 'tested', 'state must be "tested"')
       assert(nodule.testStatus === 'pass', 'testStatus must be "pass"')
+      assert(log === 'done\n', `result should have been "done" but was "${log}"`)
       return true
     })
 
@@ -72,7 +76,7 @@ describe('entity', function () {
     let log = ''
     badule.on('state', function (from, to, n) {
       const {installStatus, testStatus} = n
-      console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
+      //console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
       if (to === 'install-failed') {
         log = n.log
       }
