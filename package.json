@@ -10,7 +10,7 @@
     "humanize": "lib/humanize-log.js"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "mocha test/*.test.js"
   },
   "dependencies": {
     "bluebird": "~2.9.14",
@@ -23,12 +23,8 @@
   },
   "devDependencies": {
     "ap": "^0.2.0",
-    "gulp": "~3.8.11",
-    "gulp-chmod": "^2.0.0",
-    "gulp-filter": "^5.1.0",
-    "gulp-mocha": "~2.0.0",
-    "mocha": "^5.2.0",
-    "should": "~5.2.0"
+    "eslint": "^5.9.0",
+    "mocha": "^5.2.0"
   },
   "directories": {
     "test": "test"
