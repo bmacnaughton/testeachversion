@@ -111,7 +111,7 @@ describe('entity', function () {
 
   it('should handle a failed installation', function () {
     let log = ''
-    badule.on('state', function (from, to, n) {
+    badule('state', function (from, to, n) {
       const {installStatus, testStatus} = n
       //console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
       if (to === 'install-failed') {
