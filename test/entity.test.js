@@ -12,28 +12,25 @@ describe('entity', function () {
 
   this.timeout(20000)
 
-  const reporter = {}
-  const pkg = {
-    name: 'ap',
-    task: 'echo "done"'
-  }
-
   before(() => {
     nodule = new Entity('ap', '0.2.0', 'echo done')
     badule = new Entity('xyzzy', '9.9.9', 'false')
     // node -r xyzzy -e 'process.exit()'
   })
 
-  it.skip('should uninstall', () => {
-    return nodule.uninstall().then(() => {
-      if (fs.existsSync(`node_nodules/${spec.name}`)) {
-        throw new Error(`${spec.name} should have been uninstalled`)
-      }
-    })
-  })
-
   it('should be at the initial state', function () {
     assert(nodule.state === 'initial', 'must be "initial"')
+  })
+
+  it('should uninstall the entity', () => {
+    return nodule.uninstallEntity().then(() => {
+      if (fs.existsSync(`node_nodules/${nodule.name}`)) {
+        throw new Error(`${nodule.name} should have been uninstalled`)
+      }
+      assert(nodule.state === 'uninstalled', 'state must be "uninstalled"')
+      assert(nodule.uninstallStatus === 'pass', 'uninstallStatus must be "pass"')
+      assert(!nodule.log.stderr, 'stderr log must be empty')
+    })
   })
 
   it('should install', () => {
@@ -47,7 +44,7 @@ describe('entity', function () {
       assert(r && r.length, 'an array of install results must be returned')
       assert(nodule.state === 'installed', 'state must be "installed"')
       assert(nodule.installStatus === 'pass', 'installStatus must be "pass"')
-      assert(!nodule.log.stderr, 'log must be empty')
+      assert(!nodule.log.stderr, 'stderr log must be empty')
       let pkg = require('ap/package')
       assert(pkg.version === '0.2.0', 'ap/package version should be 0.2.0')
     })
@@ -68,7 +65,47 @@ describe('entity', function () {
       assert(log === 'done\n', `result should have been "done" but was "${log}"`)
       return true
     })
+  })
 
+  it('should install and test', function () {
+    let installLog = ''
+    let testLog = ''
+    let installed = false
+
+    nodule.on('state', function (from, to, n) {
+      if (to === 'installed' && n.installStatus === 'pass') {
+        installed = true
+        installLog = n.log
+      } else if (to === 'tested') {
+        testLog = n.log
+      }
+    })
+
+    return nodule.installAndTest()
+      .then(r => {
+        assert(installed === true, 'installed must be true')
+        assert(installLog.stdout && !installLog.stderr, 'install logs must be as expected')
+        assert(nodule.state === 'tested', 'state must be "tested"')
+        assert(nodule.testStatus === 'pass', 'testStatus must be "pass"')
+        assert(!testLog.stdout && !testLog.stderr, 'test logs must be empty')
+      })
+  })
+
+  it('should handle a test that fails', function () {
+    nodule.task = {command: 'false', args: []}
+    let succeeded = false
+    return nodule.test()
+      .then(r => {
+        succeeded = true
+      })
+      .catch(e => {
+        assert(nodule.state === 'tested', 'state must be "tested"')
+        assert(nodule.testStatus === 'fail', 'testStatus must be "fail"')
+        assert(e instanceof Error, 'e must be an instance of Error')
+      })
+      .then(r => {
+        assert(succeeded === false, 'the test must have failed')
+      })
   })
 
 
@@ -102,39 +139,9 @@ describe('entity', function () {
   })
 
 
-  it.skip('should test with install', () => {
-    return nodule.testWithInstall().then(
-      res => validateTest(spec, res)
-    )
-  })
-
-  it.skip('should test with versions', () => {
-    return Entity.testWithVersions(spec).then(
-      res => validateVersionList(spec, res)
-    )
-  })
-
-  it.skip('should test with nodule list', () => {
-    return Entity.testTheseVersions([spec, spec]).then(
-      res => validateEntityList(spec, res)
-    )
-  })
-
-  it.skip('should not fail to return result when failing a test', () => {
-    let data = {
-      name: 'ap',
-      task: 'exit 1'
-    }
-
-    let mod = new Entity(data, '0.2.0')
-    return mod.testWithInstall().then(res => {
-      res.name.should.equal(mod.name)
-      res.task.should.equal(mod.task)
-      res.status.should.equal(false)
-      res.result.should.equal('')
-    })
-  })
-
+  //
+  // consider adding function tasks again
+  //
   it.skip('should support function tasks', () => {
     let data = {
       name: 'ap',
@@ -176,47 +183,6 @@ describe('entity', function () {
       res.result.should.equal('test')
     })
   })
-
-
-
-
-
-  it.skip('should support function filter', () => {
-    let spec = {
-      name: 'express',
-      task: 'echo "test"',
-      range: '^2.0.0',
-      filter: vers => vers.slice(0, 2)
-    }
-
-    return Entity.matchingSpec(spec).then(filtered => {
-      filtered.length.should.equal(2)
-      filtered.forEach(nodule => {
-        nodule.name.should.equal(spec.name)
-        semver.satisfies(nodule.version, spec.range).should.equal(true)
-      })
-    })
-  })
-
-  //
-  // Validators
-  //
-
-  function validateTest (spec, res) {
-    res.name.should.equal(spec.name)
-    res.status.should.equal(true)
-    res.result.should.equal('test\n')
-  }
-
-  function validateVersionList (spec, res) {
-    res.should.be.instanceof(Array)
-    res.forEach(res => validateTest(spec, res))
-  }
-
-  function validateEntityList (spec, res) {
-    res.should.be.instanceof(Array)
-    res.forEach(res => validateVersionList(spec, res))
-  }
 })
 
 function delay (n) {
