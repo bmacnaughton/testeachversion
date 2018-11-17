@@ -33,15 +33,32 @@ describe('test-suite', function () {
       })
   })
 
-  it('should convert versions to entities', function () {
-    const amqplib = TestSuite.makeVersionSpec('amqplib', '>= 0.2.0 < 0.5.0 || > 0.5.0')
+  const expected = ["0.0.1", "0.0.2", "0.1.0", "0.1.1", "0.1.2", "0.1.3", "0.2.0", "0.2.1", "0.3.0", "0.3.1", "0.3.2", "0.4.0", "0.4.1", "0.4.2", "0.5.0", "0.5.1", "0.5.2"]
+  const skips = ["0.0.1", "0.0.2", "0.5.0"]
+  const amqplib = TestSuite.makeVersionSpec('amqplib', '>= 0.2.0 < 0.5.0 || > 0.5.0')
 
-    suite.mapMatchingVersionsToEntities(amqplib)
+  //
+  // the following checks cover a great deal of Entity internals as well
+  // as TestSuite functions. There is not really any way to test individual
+  // TestSuite functions without verifying that the resulting Entitys are
+  // correct.
+  //
+  it('should convert versions to entities', function () {
+    return suite.mapMatchingVersionsToEntities(amqplib)
       .then(entities => {
         assert(entities.length === 17, 'there should be 17 amqplib entities')
-        debugger
+        entities.every((en, ix) => {
+          assert(en.name === 'amqplib', 'name must be amqplib')
+          assert(en.builtin === 0, 'builtin must not be true')
+          const shouldSkip = !!~skips.indexOf(en.version)
+          assert(en.skip === shouldSkip, 'skipped versions must be correct')
+          assert(en.version === expected[ix], 'versions must match')
+        })
+        return entities
       })
   })
+
+  // node -e 'process.exit(require("ap/package").version !== "0.2.1")'
 
   it.skip('should discover satisfied versions', () => {
     return Entity.matchingSpec(spec).then(versions => {
