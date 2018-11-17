@@ -51,16 +51,13 @@ describe('entity', function () {
 
 
   it('should execute the test specified', () => {
-    let log = ''
-    nodule.on('state', function (from, to, n) {
-      if (to === 'tested') {
-        log = n.log.stdout
-      }
-    })
+    const state = nodule.state
+
     return nodule.test().then(result => {
+      const log = nodule.log.stdout
       assert(result === null, 'result must be null')
-      assert(nodule.state === 'tested', 'state must be "tested"')
-      assert(nodule.testStatus === 'pass', 'testStatus must be "pass"')
+      assert(nodule.state === state, `state must be unchanged (${state})`)
+      assert(!nodule.testStatus, 'testStatus must be falsey')
       assert(log === 'done\n', `result should have been "done" but was "${log}"`)
       return true
     })
@@ -82,28 +79,31 @@ describe('entity', function () {
 
     return nodule.installAndTest()
       .then(r => {
+        const log = nodule.log
         assert(installed === true, 'installed must be true')
-        assert(installLog.stdout && !installLog.stderr, 'install logs must be as expected')
+        assert(log.stdout && !log.stderr, 'install logs must be as expected')
         assert(nodule.state === 'tested', 'state must be "tested"')
         assert(nodule.testStatus === 'pass', 'testStatus must be "pass"')
-        assert(!testLog.stdout && !testLog.stderr, 'test logs must be empty')
       })
   })
 
   it('should handle a test that fails', function () {
+    const state = nodule.state
     nodule.task = {command: 'false', args: []}
+    // clear testStatus from previous test
+    nodule.testStatus = undefined
     let succeeded = false
     return nodule.test()
       .then(r => {
         succeeded = true
       })
       .catch(e => {
-        assert(nodule.state === 'tested', 'state must be "tested"')
-        assert(nodule.testStatus === 'fail', 'testStatus must be "fail"')
+        assert(nodule.state === state, `state must be ${state}`)
+        assert(!nodule.testStatus, 'testStatus must be falsey')
         assert(e instanceof Error, 'e must be an instance of Error')
       })
       .then(r => {
-        assert(succeeded === false, 'the test must have failed')
+        assert(succeeded === false, 'the test did not fail as it should')
       })
   })
 
@@ -142,7 +142,7 @@ describe('entity', function () {
     builtins.forEach(b => {
       const bi = new Entity(b)
       assert(bi.builtin, `builtin must be true for ${b}`)
-      assert(bi.task.command === ':', `${b} must have the default command`)
+      assert(bi.task.command === 'true', `${b} must have the default command`)
     })
   })
 
