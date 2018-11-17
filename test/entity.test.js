@@ -8,7 +8,6 @@ const fs = require('fs')
 describe('entity', function () {
   let nodule
   let badule
-  let spec
 
   this.timeout(20000)
 
@@ -136,6 +135,15 @@ describe('entity', function () {
         assert(log, 'log must not be empty')
         return true
       })
+  })
+
+  it('should correctly identify builtin modules', function () {
+    const builtins = ['crypto', 'fs', 'http', 'https', 'zlib']
+    builtins.forEach(b => {
+      const bi = new Entity(b)
+      assert(bi.builtin, `builtin must be true for ${b}`)
+      assert(bi.task.command === ':', `${b} must have the default command`)
+    })
   })
 
 
