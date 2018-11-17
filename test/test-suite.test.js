@@ -11,7 +11,8 @@ const versions = require('./versions')
 describe('test-suite', function () {
   let suite
   const stdio = [0, 1, 2]
-  const options = {stdio}
+  const hooks = {}
+  const options = {stdio, hooks}
 
   this.timeout(20000)
 
@@ -34,8 +35,8 @@ describe('test-suite', function () {
   })
 
   const expected = ["0.0.1", "0.0.2", "0.1.0", "0.1.1", "0.1.2", "0.1.3", "0.2.0", "0.2.1", "0.3.0", "0.3.1", "0.3.2", "0.4.0", "0.4.1", "0.4.2", "0.5.0", "0.5.1", "0.5.2"]
-  const skips = ["0.0.1", "0.0.2", "0.5.0"]
-  const amqplib = TestSuite.makeVersionSpec('amqplib', '>= 0.2.0 < 0.5.0 || > 0.5.0')
+  const skips = {"0.0.1": true, "0.0.2": true, "0.1.0": true, "0.1.1": true, "0.1.2": true, "0.1.3": true, "0.5.0": true}
+  const amqplib = TestSuite.makeVersionSpec('amqplib', '>= 0.2.0 < 0.5.0 || > 0.5.0', 'true')
 
   //
   // the following checks cover a great deal of Entity internals as well
@@ -49,13 +50,58 @@ describe('test-suite', function () {
         assert(entities.length === 17, 'there should be 17 amqplib entities')
         entities.every((en, ix) => {
           assert(en.name === 'amqplib', 'name must be amqplib')
-          assert(en.builtin === 0, 'builtin must not be true')
-          const shouldSkip = !!~skips.indexOf(en.version)
+          assert(en.builtin === false, 'builtin must not be true')
+          const shouldSkip = skips[en.version]
           assert(en.skip === shouldSkip, 'skipped versions must be correct')
           assert(en.version === expected[ix], 'versions must match')
         })
         return entities
       })
+  })
+
+  it('should test the correct versions', function () {
+    hooks.entityMapper = function (entity) {
+      return entity
+    }
+    suite.on('state', function (from, to, n) {
+      if (to === 'tested') {
+        //console.log(n.toString(), to, n.testStatus)
+      }
+    })
+    return suite.testVersionsOfEntity(amqplib).then(vspec => {
+      vspec.results.forEach(r => {
+        const expected = r.version in skips ? 'skip' : 'pass'
+        assert(r.testStatus === expected, `${r} found ${r.testStatus} but expected ${expected}`)
+      })
+      delete hooks.entityMapper
+      return vspec
+    })
+  })
+
+  it('should test a built-in module correctly', function () {
+    const fs = TestSuite.makeVersionSpec('fs', '', 'true')
+
+    return suite.testVersionsOfEntity(fs)
+      .then(vspec => {
+        assert(vspec.results.length === 1, 'there should only be 1 version of "fs"')
+        const r = vspec.results[0]
+        assert(r.state === 'tested', '"fs" state must be "tested"')
+        assert(r.testStatus === 'pass', '"fs" testStatus must be "pass"')
+        return vspec
+      })
+      .then(() => {
+        // switch the test to fail
+        fs.task = 'false'
+        return suite.testVersionsOfEntity(fs)
+      })
+      .then(vspec => {
+        assert(vspec.results.length === 1, 'there should only be 1 version of "fs"')
+        const r = vspec.results[0]
+        assert(r.state === 'tested', '"fs" state must be "tested"')
+        assert(r.testStatus === 'fail', '"fs" testStatus must be "fail"')
+        return vspec
+      })
+
   })
 
   // node -e 'process.exit(require("ap/package").version !== "0.2.1")'
