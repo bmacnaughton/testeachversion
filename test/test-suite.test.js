@@ -4,9 +4,10 @@ const TestSuite = require('../lib/test-suite').TestSuite
 const semver = require('semver')
 const assert = require('assert')
 const getVersions = require('../lib/get-versions')
+const VS = require('../lib/version-spec')
 
 // fetch the example versions file.
-const versions = require('./versions')
+const versions = require('./versions-ao-apm')
 
 describe('test-suite', function () {
   let suite
@@ -36,7 +37,10 @@ describe('test-suite', function () {
 
   const expected = ["0.0.1", "0.0.2", "0.1.0", "0.1.1", "0.1.2", "0.1.3", "0.2.0", "0.2.1", "0.3.0", "0.3.1", "0.3.2", "0.4.0", "0.4.1", "0.4.2", "0.5.0", "0.5.1", "0.5.2"]
   const skips = {"0.0.1": true, "0.0.2": true, "0.1.0": true, "0.1.1": true, "0.1.2": true, "0.1.3": true, "0.5.0": true}
-  const amqplib = TestSuite.makeVersionSpec('amqplib', '>= 0.2.0 < 0.5.0 || > 0.5.0', 'true')
+  const amqplib = new VS('amqplib', {
+    ranges: '>= 0.2.0 < 0.5.0 || > 0.5.0',
+    task: 'true'
+  })
 
   //
   // the following checks cover a great deal of Entity internals as well
@@ -79,7 +83,7 @@ describe('test-suite', function () {
   })
 
   it('should test a built-in module correctly', function () {
-    const fs = TestSuite.makeVersionSpec('fs', '', 'true')
+    const fs = new VS('fs', {task: 'true'})
 
     return suite.testVersionsOfEntity(fs)
       .then(vspec => {
@@ -103,6 +107,46 @@ describe('test-suite', function () {
       })
 
   })
+
+  it('should allow function tasks for modules and builtin modules', function () {
+    let count = 0
+    function fsFunc (entity) {
+      assert(entity.name === 'fs')
+      count += 1
+      return {status: 0}
+    }
+    function apFunc (entity) {
+      assert(entity.name === 'ap')
+      count += 1
+      // make odd patch versions fail
+      return {status: entity.version.slice(-1) & 1}
+    }
+    const apExpected = ['fail', 'pass', 'pass']
+
+    const fs = new VS('fs', {task: fsFunc})
+    const ap = new VS('ap', {task: apFunc})
+
+    return suite.testVersionsOfEntity(fs)
+      .then(vspec => {
+        assert(count === 1, 'fsFunc() test should be called 1 time')
+        count = 0
+        assert(vspec.results.length === 1, 'there should be only 1 result for "fs"')
+        return suite.testVersionsOfEntity(ap)
+      })
+      .then(vspec => {
+        assert(count === 3, 'apFunc() test should be called 3 times')
+        assert(vspec.results.length === 3, 'there should be 3 results for "ap"')
+        vspec.results.forEach((r, i) => {
+          debugger
+          assert(r.testStatus === apExpected[i], `"ap" test ${i} must be ${apExpected[i]}`)
+        })
+      })
+      .catch(e => {
+        console.log(e)
+      })
+  })
+
+
 
   // node -e 'process.exit(require("ap/package").version !== "0.2.1")'
 
