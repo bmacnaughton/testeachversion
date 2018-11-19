@@ -3,7 +3,7 @@
 const TestSuite = require('../lib/test-suite').TestSuite
 const semver = require('semver')
 const assert = require('assert')
-const getVersions = require('../lib/get-versions')
+const getVersions = require('../lib/get-npm-versions')
 const VS = require('../lib/version-spec')
 
 // fetch the example versions file.
@@ -137,7 +137,6 @@ describe('test-suite', function () {
         assert(count === 3, 'apFunc() test should be called 3 times')
         assert(vspec.results.length === 3, 'there should be 3 results for "ap"')
         vspec.results.forEach((r, i) => {
-          debugger
           assert(r.testStatus === apExpected[i], `"ap" test ${i} must be ${apExpected[i]}`)
         })
       })
