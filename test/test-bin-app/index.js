@@ -1,12 +1,21 @@
 var test = require("tap").test;
 
 var ap = require('ap');
+var version = require('ap/package').version
+
 var pa = ap.pa;
 var apa = ap.apa;
 var partial = ap.partial;
 var partialRight = ap.partialRight;
 var curry = ap.curry;
 var curryRight = ap.curryRight;
+
+//
+// this is kind of a funny index.js - it is the test code for the ap package.
+// because testeachversion needs an application to test it just runs this, the
+// ap test suite renamed to index.js, after installing a different version of
+// ap.
+//
 
 function one(x, y) {
     return x * 2 + y
@@ -23,6 +32,13 @@ function three(x, y) {
 var z = {
     z: 10
 };
+
+const message = 'testing ap ' + version
+const l = message.length
+
+console.log('='.repeat(l))
+console.log(message)
+console.log('='.repeat(l))
 
 test("ap function", function (t) {
     var apOne = ap([3], one);
