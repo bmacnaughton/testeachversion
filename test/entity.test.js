@@ -87,6 +87,25 @@ describe('entity', function () {
       })
   })
 
+  it('should set test to fail if the install fails', function () {
+    const badule = new Entity('xyzzy', '9.9.9', 'true')
+    let installFailedState = false
+
+    badule.on('state', function(from, to, n) {
+      if (to === 'install-failed') {
+        installFailedState = true
+      }
+    })
+
+    return badule.installAndTest()
+      .then(r => {
+        assert(installFailedState, 'the install-failed state event must be emitted')
+        assert(r === badule, 'the return value must be the badule Entity')
+        assert(r.installStatus === 'fail')
+        assert(r.testStatus === 'fail')
+      })
+  })
+
   it('should handle a test that fails', function () {
     const state = nodule.state
     nodule.task = {command: 'false', args: []}
