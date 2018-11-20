@@ -1,6 +1,6 @@
 {
   "name": "testeachversion",
-  "version": "7.2.2",
+  "version": "8.0.0-rc1",
   "description": "Run a test against each version of a package",
 
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
