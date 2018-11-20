@@ -1,7 +1,7 @@
 {
   "name": "testeachversion",
   "version": "7.2.2",
-  "description": "Run a test against each version of a package!",
+  "description": "Run a test against each version of a package",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "lib/index.js",
   "license": "MIT",
