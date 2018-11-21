@@ -165,24 +165,32 @@ describe('entity', function () {
     })
   })
 
-
-  //
-  // consider adding function tasks again
-  //
-  it.skip('should support function tasks', () => {
-    let data = {
-      name: 'ap',
-      task: () => 'test'
+  it('should support function tasks', function () {
+    function result (status) {
+      return {status}
     }
+    let entity = new Entity('ap', '0.2.0', () => result(0))
+    let failed = false
 
-    let mod = new Entity(data, '0.2.0')
-    return mod.testWithInstall().then(res => {
-      res.name.should.equal(mod.name)
-      res.status.should.equal(true)
-      res.result.should.equal('test')
+    return entity.test().then(res => {
+      assert(res === null, 'the result should be null')
+    })
+    .then(() => {
+      entity.task = () => result(1)
+      return entity.test()
+    })
+    .catch(e => {
+      assert(e instanceof Error, 'must fail with an Error')
+      failed = true
+    })
+    .then(r => {
+      assert(failed, 'must have failed')
     })
   })
 
+  //
+  // TODO BAM handle callbacks and promises.
+  //
   it.skip('should support function tasks with callbacks', () => {
     let data = {
       name: 'ap',
