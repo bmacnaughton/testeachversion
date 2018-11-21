@@ -15,7 +15,7 @@ describe('test-suite', function () {
   const hooks = {}
   const options = {stdio, hooks}
 
-  this.timeout(20000)
+  this.timeout(30000)
 
   it('should construct a test suite using the versions file', function () {
     suite = new TestSuite(versions, options)
