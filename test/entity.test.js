@@ -22,7 +22,7 @@ describe('entity', function () {
   })
 
   it('should uninstall the entity', () => {
-    return nodule.uninstallEntity().then(() => {
+    return nodule.uninstall().then(() => {
       if (fs.existsSync(`node_nodules/${nodule.name}`)) {
         throw new Error(`${nodule.name} should have been uninstalled`)
       }
@@ -46,6 +46,9 @@ describe('entity', function () {
       assert(!nodule.log.stderr, 'stderr log must be empty')
       let pkg = require('ap/package')
       assert(pkg.version === '0.2.0', 'ap/package version should be 0.2.0')
+      assert(nodule.log.stdout, 'stdout must not be empty')
+      const lines = nodule.log.stdout.split('\n')
+      assert(lines[0] === '+ ap@0.2.0', 'stdout should show + ap@0.2.0')
     })
   })
 
@@ -103,6 +106,7 @@ describe('entity', function () {
         assert(r === badule, 'the return value must be the badule Entity')
         assert(r.installStatus === 'fail')
         assert(r.testStatus === 'fail')
+        assert(r.log.stderr && !r.log.stdout, 'install logs must be as expected')
       })
   })
 
@@ -151,7 +155,7 @@ describe('entity', function () {
         assert(e instanceof Error, 'an instance of Error must be returned')
         assert(badule.state === 'install-failed', 'state must be "install-failed"')
         assert(badule.installStatus === 'fail', 'installStatus must be "fail"')
-        assert(log, 'log must not be empty')
+        assert(log.stderr, 'stderr output must not be empty')
         return true
       })
   })
@@ -163,6 +167,51 @@ describe('entity', function () {
       assert(bi.builtin, `builtin must be true for ${b}`)
       assert(bi.task.command === 'true', `${b} must have the default command`)
     })
+  })
+
+  it('should redirect stdout and stderr when specified', function () {
+    const sink = Buffer.alloc(1000000)
+    const options = {
+      flags: 'w',
+      defaultEncoding: 'utf8',
+      mode: 0o664,
+    }
+
+    const open = []
+    let ws1
+    let ws2
+
+    open[0] = new Promise(function (resolve, reject) {
+      ws1 = fs.createWriteStream('xyzzy1', options)
+      ws1.on('open', resolve).on('error', reject)
+    })
+    open[1] = new Promise(function (resolve, reject) {
+      ws2 = fs.createWriteStream('xyzzy2', options)
+      ws2.on('open', resolve).on('error', reject)
+    })
+
+    // wait for them to open then start the installs.
+    let both = []
+    Promise.all(open).then(function () {
+      const nodule = new Entity('ap', '0.2.0', 'true', {stdio: [null, ws1, ws1]})
+      const badule = new Entity('xyzzy', '9.9.9', 'true', {stdio: [null, ws2, ws2]})
+      let threw = true
+
+      both[0] = nodule.install()
+      .then(() => {
+        assert(!nodule.log.stdout && !nodule.log.stderr, 'success logs must be empty')
+      })
+      both[1] = badule.install()
+      .then(() => {
+        threw = false
+      })
+      .catch(() => {
+        assert(!nodule.log.stdout && !nodule.log.stderr, 'failure logs must be empty')
+        assert(threw, 'failed install must throw an error')
+      })
+    })
+
+    return Promise.all(both)
   })
 
   it('should support function tasks', function () {
@@ -189,7 +238,8 @@ describe('entity', function () {
   })
 
   //
-  // TODO BAM handle callbacks and promises.
+  // TODO BAM handle callbacks and promises so function can
+  // be async.
   //
   it.skip('should support function tasks with callbacks', () => {
     let data = {
