@@ -42,6 +42,8 @@ describe('test-suite', function () {
     task: 'true'
   })
 
+  let lastAmqplib
+
   //
   // the following checks cover a great deal of Entity internals as well
   // as TestSuite functions. There is not really any way to test individual
@@ -59,8 +61,13 @@ describe('test-suite', function () {
           assert(en.skip === shouldSkip, 'skipped versions must be correct')
           assert(en.version === expected[ix], 'versions must match')
         })
+        lastAmqplib = entities[entities.length - 1]
         return entities
       })
+  })
+
+  it('should uninstall amqplib', function () {
+    return lastAmqplib.uninstall()
   })
 
   it('should test the correct versions', function () {
