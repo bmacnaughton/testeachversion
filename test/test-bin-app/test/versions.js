@@ -1,6 +1,6 @@
 'use strict'
 
-const VS = require('testeachversion/lib/version-spec')
+const VS = require('testeachversion').VersionSpec
 
 const packages = module.exports = []
 
