@@ -6,19 +6,37 @@ const assert = require('assert')
 const getVersions = require('../lib/get-npm-versions')
 const VS = require('../lib/version-spec')
 
+const fs = require('fs')
+
 // fetch the example versions file.
 const versions = require('./versions-ao-apm')
 
 describe('test-suite', function () {
   let suite
-  const stdio = [0, 1, 2]
+  let stdio
   const hooks = {}
-  const options = {stdio, hooks}
+  const logpath = 'suite.log'
 
   this.timeout(30000)
 
   it('should construct a test suite using the versions file', function () {
-    suite = new TestSuite(versions, options)
+    let streamOpts = {
+      flags: 'w',
+      defaultEncoding: 'utf8',
+      mode: 0o664,
+    }
+    const logstream = fs.createWriteStream(logpath, streamOpts)
+
+    return new Promise(function (resolve, reject) {
+      function resolver() {
+        stdio = [null, logstream, logstream]
+        resolve()
+      }
+      logstream.on('open', resolver).on('error', reject)
+    }).then(() => {
+      suite = new TestSuite(versions, {stdio, hooks})
+    })
+
   })
 
   it('should make an entity from an existing package', function () {
