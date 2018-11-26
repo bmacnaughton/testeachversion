@@ -1,5 +1,6 @@
 'use strict'
 
+const VersionSpec = require('testeachversion').VersionSpec
 const packages = module.exports = []
 
 //
@@ -18,7 +19,7 @@ test('express', '>= 3.0.0')
 
 test('generic-pool', '>= 2.4.0')
 
-test2('hapi', {
+test('hapi', {
   ranges: [
     {
       range: '>= 9.0.1 < 17.0.0',
@@ -51,7 +52,7 @@ test('redis', '>= 0.8.0')
 test('restify', '>= 2.0.0 < 2.0.2 || >= 2.0.3')
 test('tedious', '>= 0.1.5')
 
-test2('vision', {
+test('vision', {
   ranges: [
     {
       range: '>= 4.0.0 < 5.0.0',
@@ -68,36 +69,7 @@ test2('vision', {
 // Helpers
 //
 
-function test (name, range, task) {
-  packages.push({
-    version: 1,
-    name: name,
-    task: task || './node_modules/gulp/bin/gulp.js test:probe:' + name,
-    range: range || '*',
-  })
-}
-
-function test2 (name, options = {}) {
-  const task = options.task || './node_modules/gulp/bin/gulp.js test:probe:' + name
-
-  let ranges
-  if (typeof options === 'string') {
-    ranges = [{range: options}]
-  } else if (!options.ranges) {
-    ranges = [{range: '*'}]
-  } else if (typeof options.ranges === 'string') {
-    ranges = [{range: options.ranges}]
-  } else if (Array.isArray(options.ranges)) {
-    ranges = options.ranges
-  } else {
-    // eslint-disable-next-line max-len
-    throw new Error(`Unexpected range ${options.range} for package ${name} in versions file ${__filename}`)
-  }
-
-  packages.push({
-    version: 2,
-    name,
-    task,
-    ranges,
-  })
+function test (name, ranges, task) {
+  task = task || './node_modules/gulp/bin/gulp.js test:probe:' + name
+  packages.push(VersionSpec(name, {task, ranges}))
 }
