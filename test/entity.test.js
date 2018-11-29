@@ -47,8 +47,7 @@ describe('entity', function () {
       let pkg = require('ap/package')
       assert(pkg.version === '0.2.0', 'ap/package version should be 0.2.0')
       assert(nodule.log.stdout, 'stdout must not be empty')
-      const lines = nodule.log.stdout.split('\n')
-      assert(lines[0] === '+ ap@0.2.0', 'stdout should show + ap@0.2.0')
+      assert(nodule.log.stdout.indexOf('ap@0.2.0') >= 0, 'stdout should contain "ap@0.2.0"')
     })
   })
 
@@ -86,7 +85,7 @@ describe('entity', function () {
         assert(installed === true, 'installed must be true')
         assert(log.stdout && !log.stderr, 'install logs must be as expected')
         assert(nodule.state === 'tested', 'state must be "tested"')
-        assert(nodule.testStatus === 'pass', 'testStatus must be "pass"')
+        assert(nodule.testStatus === 'pass', `testStatus must be "pass", not "${nodule.testStatus}"`)
       })
   })
 
