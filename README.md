@@ -20,8 +20,9 @@ There are some useful options, including:
 
 - -c, --config - Look for version spec file in different location
 - -p, --package - Only run version tests for the specified package
-- -v, --verbose - Include additional output from test runs
+- -V, --verbose - Include additional output from test runs
 - -s, --suppress - Set `-s false` to output errors to terminal
+- -v, --version - Show the version and exit
 
 ### Interpreting the results
 
