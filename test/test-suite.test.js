@@ -6,6 +6,8 @@ const assert = require('assert')
 const getVersions = require('../lib/get-npm-versions')
 const VS = require('../lib/version-spec')
 
+const getPackageVersions = require('npm-package-versions')
+
 const fs = require('fs')
 
 // fetch the example versions file.
@@ -17,7 +19,23 @@ describe('test-suite', function () {
   const hooks = {}
   const logpath = 'suite.log'
 
-  this.timeout(30000)
+  this.timeout(40000)
+
+  // setup using the current ranges of amqplib. if there start to be too many and it takes to much time adjust
+  // to only check a shorter range.
+  let expected
+  const skips = {"0.0.1": true, "0.0.2": true, "0.1.0": true, "0.1.1": true, "0.1.2": true, "0.1.3": true, "0.5.0": true}
+  const amqplib = new VS('amqplib', {
+    ranges: '>= 0.2.0 < 0.5.0 || > 0.5.0',
+    task: 'true'
+  })
+  before(function (done) {
+    getPackageVersions('amqplib', function (err, versions) {
+      expected = versions
+      done()
+    })
+  })
+
 
   it('should construct a test suite using the versions file', function () {
     let streamOpts = {
@@ -53,13 +71,6 @@ describe('test-suite', function () {
       })
   })
 
-  const expected = ["0.0.1", "0.0.2", "0.1.0", "0.1.1", "0.1.2", "0.1.3", "0.2.0", "0.2.1", "0.3.0", "0.3.1", "0.3.2", "0.4.0", "0.4.1", "0.4.2", "0.5.0", "0.5.1", "0.5.2"]
-  const skips = {"0.0.1": true, "0.0.2": true, "0.1.0": true, "0.1.1": true, "0.1.2": true, "0.1.3": true, "0.5.0": true}
-  const amqplib = new VS('amqplib', {
-    ranges: '>= 0.2.0 < 0.5.0 || > 0.5.0',
-    task: 'true'
-  })
-
   let lastAmqplib
 
   //
@@ -71,7 +82,8 @@ describe('test-suite', function () {
   it('should convert versions to entities', function () {
     return suite.mapMatchingVersionsToEntities(amqplib)
       .then(entities => {
-        assert(entities.length === 17, 'there should be 17 amqplib entities')
+        const expLen = expected.length;
+        assert(entities.length === expLen, `found ${entities.length} amqplib entities, expected ${expLen}`)
         entities.every((en, ix) => {
           assert(en.name === 'amqplib', 'name must be amqplib')
           assert(en.builtin === false, 'builtin must not be true')
