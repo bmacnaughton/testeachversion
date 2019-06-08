@@ -24,6 +24,8 @@ There are some useful options, including:
 - -s, --suppress - Set `-s false` to output errors to terminal
 - -v, --version - Show the version and exit
 
+There are options to change the output filenames but the humanize logs program will not find the summary logs then so use at your own risk.
+
 ### Interpreting the results
 
 Two logs are generated - a summary log and a details log. The details log contains the output from each test run and can be used to better understand how and why specific tests failed. The summary log is in JSON format and captures the tests that were skipped, passed, and failed. It can be interpreted using `humanize-log.js` (which is linked as `node_modules/.bin/humanize`).
@@ -31,6 +33,15 @@ Two logs are generated - a summary log and a details log. The details log contai
 `humanize path [...path]` for each file or directory specified by `path` will select the summary json files and output each package's tests that passed.
 
 `humanize path [...path] -a` will output each package's skips, passes, and fails.
+
+`humanize path [...path] -m` or `--merge-duplicates` will process multiple logs from each os-node-version
+combination replacing previous results with newer results. this is most useful when specific tests fail
+and a new test run is made that covers only the failed tests. it is similar to Object.assign(test1, test2)
+in that test2 results replace test1's previous results. for example, if all the hapi tests failed in test1
+you can fix the problem then run `testeachversion -p hapi` to test only hapi. i always direct log outputs to
+a `log/` so, when `testeachversion` has completed you can run `humanize -m logs/` and it will merge test2
+results on top of test1 results, filling in the failed hapi results with new hapi (hopefully successful)
+results.
 
 
 ### Versions File
