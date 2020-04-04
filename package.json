@@ -1,6 +1,6 @@
 {
   "name": "testeachversion",
-  "version": "8.4.0",
+  "version": "8.5.0",
   "description": "Run a test against each version of a package",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "lib/index.js",
@@ -15,9 +15,9 @@
   "dependencies": {
     "bluebird": "~2.9.14",
     "builtin-modules": "^3.0.0",
-    "indent-string": "~1.2.1",
+    "indent-string": "^1.2.2",
     "linux-os-info": "^2.0.0",
-    "minimist": "~1.1.1",
+    "minimist": "^1.2.3",
     "retry": "^0.12.0",
     "semver": "~4.3.1",
     "sequence-grouper": "^1.0.0"
