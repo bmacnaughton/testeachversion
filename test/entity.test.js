@@ -2,8 +2,9 @@
 
 const Entity = require('../lib/entity').Entity
 const assert = require('assert')
-const semver = require('semver')
 const fs = require('fs')
+
+const debug = false;
 
 describe('entity', function () {
   let nodule
@@ -35,8 +36,11 @@ describe('entity', function () {
   it('should install', () => {
     // little function to output info while developing
     nodule.on('state', function (from, to, n) {
-      const {installStatus, testStatus} = n
-      //console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
+      if (debug) {
+        const {installStatus, testStatus} = n;
+        // eslint-disable-next-line no-console
+        console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus);
+      }
     })
 
     return nodule.install().then(r => {
@@ -44,7 +48,7 @@ describe('entity', function () {
       assert(nodule.state === 'installed', 'state must be "installed"')
       assert(nodule.installStatus === 'pass', 'installStatus must be "pass"')
       assert(!nodule.log.stderr, 'stderr log must be empty')
-      let pkg = require('ap/package')
+      const pkg = require('ap/package')
       assert(pkg.version === '0.2.0', 'ap/package version should be 0.2.0')
       assert(nodule.log.stdout, 'stdout must not be empty')
       assert(nodule.log.stdout.indexOf('ap@0.2.0') >= 0, 'stdout should contain "ap@0.2.0"')
@@ -74,8 +78,10 @@ describe('entity', function () {
       if (to === 'installed' && n.installStatus === 'pass') {
         installed = true
         installLog = n.log
+        installLog;     // so eslint ignores unused
       } else if (to === 'tested') {
         testLog = n.log
+        testLog;        // so eslint ignores unused
       }
     })
 
@@ -93,7 +99,7 @@ describe('entity', function () {
     const badule = new Entity('xyzzy', '9.9.9', 'true')
     let installFailedState = false
 
-    badule.on('state', function(from, to, n) {
+    badule.on('state', function (from, to, n) {
       if (to === 'install-failed') {
         installFailedState = true
       }
@@ -133,8 +139,11 @@ describe('entity', function () {
   it('should handle a failed installation', function () {
     let log = ''
     badule.on('state', function (from, to, n) {
-      const {installStatus, testStatus} = n
-      //console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus)
+      if (debug) {
+        const {installStatus, testStatus} = n;
+        // eslint-disable-next-line no-console
+        console.log('state', n.toString(), from, ' => ', to, 'i', installStatus, 't', testStatus);
+      }
       if (to === 'install-failed') {
         log = n.log
       }
@@ -169,7 +178,7 @@ describe('entity', function () {
   })
 
   it('should redirect stdout and stderr when specified', function () {
-    const sink = Buffer.alloc(1000000)
+    const sink = Buffer.alloc(1000000);       // eslint-disable-line no-unused-vars
     const options = {
       flags: 'w',
       defaultEncoding: 'utf8',
@@ -190,24 +199,25 @@ describe('entity', function () {
     })
 
     // wait for them to open then start the installs.
-    let both = []
+    const both = []
     Promise.all(open).then(function () {
       const nodule = new Entity('ap', '0.2.0', 'true', {stdio: [null, ws1, ws1]})
       const badule = new Entity('xyzzy', '9.9.9', 'true', {stdio: [null, ws2, ws2]})
       let threw = true
 
       both[0] = nodule.install()
-      .then(() => {
-        assert(!nodule.log.stdout && !nodule.log.stderr, 'success logs must be empty')
-      })
+        .then(() => {
+          assert(!nodule.log.stdout && !nodule.log.stderr, 'success logs must be empty')
+        });
+
       both[1] = badule.install()
-      .then(() => {
-        threw = false
-      })
-      .catch(() => {
-        assert(!nodule.log.stdout && !nodule.log.stderr, 'failure logs must be empty')
-        assert(threw, 'failed install must throw an error')
-      })
+        .then(() => {
+          threw = false
+        })
+        .catch(() => {
+          assert(!nodule.log.stdout && !nodule.log.stderr, 'failure logs must be empty')
+          assert(threw, 'failed install must throw an error')
+        });
     })
 
     return Promise.all(both)
@@ -217,23 +227,24 @@ describe('entity', function () {
     function result (status) {
       return {status}
     }
-    let entity = new Entity('ap', '0.2.0', () => result(0))
+    const entity = new Entity('ap', '0.2.0', () => result(0))
     let failed = false
 
-    return entity.test().then(res => {
-      assert(res === null, 'the result should be null')
-    })
-    .then(() => {
-      entity.task = () => result(1)
-      return entity.test()
-    })
-    .catch(e => {
-      assert(e instanceof Error, 'must fail with an Error')
-      failed = true
-    })
-    .then(r => {
-      assert(failed, 'must have failed')
-    })
+    return entity.test()
+      .then(res => {
+        assert(res === null, 'the result should be null')
+      })
+      .then(() => {
+        entity.task = () => result(1)
+        return entity.test()
+      })
+      .catch(e => {
+        assert(e instanceof Error, 'must fail with an Error')
+        failed = true
+      })
+      .then(r => {
+        assert(failed, 'must have failed')
+      })
   })
 
   //
@@ -241,12 +252,12 @@ describe('entity', function () {
   // be async.
   //
   it.skip('should support function tasks with callbacks', () => {
-    let data = {
+    const data = {
       name: 'ap',
       task: (done) => delay(100).then(() => done(null, 'test'))
     }
 
-    let mod = new Entity(data, '0.2.0')
+    const mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
@@ -255,12 +266,12 @@ describe('entity', function () {
   })
 
   it.skip('should support function tasks with promises', () => {
-    let data = {
+    const data = {
       name: 'ap',
       task: () => delay(100).then(() => 'test')
     }
 
-    let mod = new Entity(data, '0.2.0')
+    const mod = new Entity(data, '0.2.0')
     return mod.testWithInstall().then(res => {
       res.name.should.equal(mod.name)
       res.status.should.equal(true)
