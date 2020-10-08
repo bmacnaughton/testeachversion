@@ -1,5 +1,3 @@
-'use strict'
-
 const TestSuite = require('../lib/test-suite').TestSuite
 const Entity = require('../lib/entity').Entity;
 const semver = require('semver')
@@ -59,8 +57,9 @@ describe('test-suite', function () {
   })
 
   it('should make an entity from an existing package', function () {
+    const expectedVersion = require('builtin-modules/package.json').version;
     const bim = suite.makeEntityForExistingPackage('builtin-modules')
-    assert(bim.version === '3.0.0')
+    assert(bim.version === expectedVersion);
     assert(bim.stdio === stdio, 'stdio should be correct')
   })
 
