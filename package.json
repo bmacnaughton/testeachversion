@@ -1,6 +1,6 @@
 {
   "name": "testeachversion",
-  "version": "8.6.0",
+  "version": "8.7.1",
   "description": "Run a test against each version of a package",
   "author": "Bruce A. MacNaughton <bmacnaughton@gmail.com>",
   "main": "lib/index.js",
@@ -23,10 +23,8 @@
     "sequence-grouper": "^1.0.0"
   },
   "devDependencies": {
-    "amqplib": "^0.5.3",
+    "amqplib": "^0.5.6",
     "ap": "^0.2.0",
-    "eslint": "^5.9.0",
-    "mocha": "^5.2.0",
     "npm-package-versions": "^1.0.1"
   },
   "directories": {

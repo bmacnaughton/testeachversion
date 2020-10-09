@@ -1,6 +1,5 @@
-'use strict'
-
 const TestSuite = require('../lib/test-suite').TestSuite
+const Entity = require('../lib/entity').Entity;
 const semver = require('semver')
 const assert = require('assert')
 const getVersions = require('../lib/get-npm-versions')
@@ -24,7 +23,7 @@ describe('test-suite', function () {
   // setup using the current ranges of amqplib. if there start to be too many and it takes to much time adjust
   // to only check a shorter range.
   let expected
-  const skips = {"0.0.1": true, "0.0.2": true, "0.1.0": true, "0.1.1": true, "0.1.2": true, "0.1.3": true, "0.5.0": true}
+  const skips = {'0.0.1': true, '0.0.2': true, '0.1.0': true, '0.1.1': true, '0.1.2': true, '0.1.3': true, '0.5.0': true}
   const amqplib = new VS('amqplib', {
     ranges: '>= 0.2.0 < 0.5.0 || > 0.5.0',
     task: 'true'
@@ -38,7 +37,7 @@ describe('test-suite', function () {
 
 
   it('should construct a test suite using the versions file', function () {
-    let streamOpts = {
+    const streamOpts = {
       flags: 'w',
       defaultEncoding: 'utf8',
       mode: 0o664,
@@ -46,7 +45,7 @@ describe('test-suite', function () {
     const logstream = fs.createWriteStream(logpath, streamOpts)
 
     return new Promise(function (resolve, reject) {
-      function resolver() {
+      function resolver () {
         stdio = [null, logstream, logstream]
         resolve()
       }
@@ -58,8 +57,9 @@ describe('test-suite', function () {
   })
 
   it('should make an entity from an existing package', function () {
+    const expectedVersion = require('builtin-modules/package.json').version;
     const bim = suite.makeEntityForExistingPackage('builtin-modules')
-    assert(bim.version === '3.0.0')
+    assert(bim.version === expectedVersion);
     assert(bim.stdio === stdio, 'stdio should be correct')
   })
 
@@ -119,6 +119,24 @@ describe('test-suite', function () {
     })
   })
 
+  it('should test only test one version with the --latest-only option', function () {
+    hooks.entityMapper = function (entity) {
+      return entity;
+    };
+    const ap = new VS('ap', {task: 'true'});
+    ap.latestOnly = true;
+    const expected = ['skip', 'skip', 'pass'];
+    return suite.testVersionsOfEntity(ap)
+      .then(vspec => {
+        assert(vspec.results.length === 3, 'there should be 3 results');
+        vspec.results.forEach((r, ix) => {
+          assert(r.testStatus === expected[ix], `${ix}: found ${r.testStatus}, expected: ${expected[ix]}`);
+        });
+        delete hooks.entityMapper;
+        return vspec;
+      });
+  });
+
   it('should test a built-in module correctly', function () {
     const fs = new VS('fs', {task: 'true'})
 
@@ -146,6 +164,8 @@ describe('test-suite', function () {
   })
 
   it('should allow function tasks for modules and builtin modules', function () {
+    // ap is an existing package with only 3 versions that is not likely to ever
+    // have another version. the three versions are 0.0.1, 0.1.0, and 0.2.0.
     let count = 0
     function fsFunc (entity) {
       assert(entity.name === 'fs')
@@ -178,15 +198,14 @@ describe('test-suite', function () {
         })
       })
       .catch(e => {
-        console.log(e)
+        console.log(e); // eslint-disable-line no-console
       })
   })
-
-
 
   // node -e 'process.exit(require("ap/package").version !== "0.2.1")'
 
   it.skip('should discover satisfied versions', () => {
+    const spec = 'must create a valid spec';
     return Entity.matchingSpec(spec).then(versions => {
       versions.forEach(nodule => {
         nodule.name.should.equal(spec.name)
@@ -196,14 +215,14 @@ describe('test-suite', function () {
   })
 
   it.skip('should discover satisfied versions from array range', () => {
-    let possible = [
+    const possible = [
       '4.9.7',
       '4.9.8',
       '4.10.0',
       '4.10.1'
     ]
 
-    let spec = {
+    const spec = {
       name: 'express',
       task: 'true',
       range: ['~4.9.7', '<= 4.10.1 >= 4.10.0']
@@ -220,7 +239,7 @@ describe('test-suite', function () {
 
 
   it.skip('should support function filter', () => {
-    let spec = {
+    const spec = {
       name: 'express',
       task: 'echo "test"',
       range: '^2.0.0',
@@ -251,12 +270,14 @@ describe('test-suite', function () {
     res.forEach(res => validateTest(spec, res))
   }
 
+  // eslint-disable-next-line no-unused-vars
   function validateEntityList (spec, res) {
     res.should.be.instanceof(Array)
     res.forEach(res => validateVersionList(spec, res))
   }
 })
 
+// eslint-disable-next-line no-unused-vars
 function delay (n) {
   return new Promise((done) => setTimeout(() => done(n), n))
 }

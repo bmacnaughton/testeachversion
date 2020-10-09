@@ -82,6 +82,10 @@ The `example/` directory contains an example version file.
 
 ### History
 
+Version 8.7
+- primary change is adding versions of tested appoptics components
+- if developing there is a breaking change - mocha and eslint are global installs and were removed from dependencies.
+
 Version 8 is a major rearchitecture for better internal organization.
 - allows testing of node builtin modules, e.g., `fs` which are have only one version and are already installed.
 - enables function tests again
