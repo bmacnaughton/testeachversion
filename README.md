@@ -82,6 +82,9 @@ The `example/` directory contains an example version file.
 
 ### History
 
+Version 9.0.0
+- take version-string from command-line. remove hardcoded items inserted into the version string.
+
 Version 8.7
 - primary change is adding versions of tested appoptics components
 - if developing there is a breaking change - mocha and eslint are global installs and were removed from dependencies.
